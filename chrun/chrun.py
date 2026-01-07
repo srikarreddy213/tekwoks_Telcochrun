@@ -5,12 +5,7 @@ import os
 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (
-    accuracy_score,
-    confusion_matrix,
-    roc_curve,
-    auc
-)
+from sklearn.metrics import accuracy_score, confusion_matrix, roc_curve, auc
 
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -32,29 +27,23 @@ body { background-color: #0b0f19; }
 .block-container { padding-top: 1.5rem; }
 .card {
     background-color: #111827;
-    padding: 18px;
-    border-radius: 12px;
+    padding: 16px;
+    border-radius: 10px;
     text-align: center;
-    box-shadow: 0px 0px 15px rgba(0,0,0,0.5);
 }
 .card-title {
     color: #9ca3af;
-    font-size: 15px;
+    font-size: 14px;
 }
 .card-value {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: bold;
     color: #22c55e;
 }
 .card-value-red {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: bold;
     color: #ef4444;
-}
-.section {
-    color: #e5e7eb;
-    font-size: 22px;
-    margin-top: 30px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -92,52 +81,29 @@ churn_rate = round((leave / total) * 100, 2)
 c1, c2, c3, c4 = st.columns(4)
 
 with c1:
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Total Customers</div>
-        <div class="card-value">{total}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"<div class='card'><div class='card-title'>Total Customers</div><div class='card-value'>{total}</div></div>", unsafe_allow_html=True)
 with c2:
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Customers Staying</div>
-        <div class="card-value">{stay}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"<div class='card'><div class='card-title'>Customers Staying</div><div class='card-value'>{stay}</div></div>", unsafe_allow_html=True)
 with c3:
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Customers Leaving</div>
-        <div class="card-value-red">{leave}</div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    st.markdown(f"<div class='card'><div class='card-title'>Customers Leaving</div><div class='card-value-red'>{leave}</div></div>", unsafe_allow_html=True)
 with c4:
-    st.markdown(f"""
-    <div class="card">
-        <div class="card-title">Churn Rate</div>
-        <div class="card-value-red">{churn_rate}%</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<div class='card'><div class='card-title'>Churn Rate</div><div class='card-value-red'>{churn_rate}%</div></div>", unsafe_allow_html=True)
 
 # --------------------------------------------------
-# SAMPLE DATA TABLE
+# SAMPLE DATA
 # --------------------------------------------------
 st.markdown("### 📋 Sample Customer Data")
-st.dataframe(df.head(10), use_container_width=True)
+st.dataframe(df.head(8), use_container_width=True)
 
 # --------------------------------------------------
-# CUSTOMER DISTRIBUTION
+# CUSTOMER DISTRIBUTION (SMALL)
 # --------------------------------------------------
 st.markdown("### 👥 Customer Distribution")
-
-fig1, ax1 = plt.subplots(figsize=(4,3))
+fig1, ax1 = plt.subplots(figsize=(3,2))
 sns.countplot(x=df["Churn"], palette=["#22c55e", "#ef4444"], ax=ax1)
-ax1.set_xlabel("Customer Status")
-ax1.set_ylabel("Count")
+ax1.set_xlabel("")
+ax1.set_ylabel("Count", fontsize=8)
+ax1.tick_params(axis='both', labelsize=8)
 st.pyplot(fig1)
 
 # --------------------------------------------------
@@ -166,51 +132,49 @@ st.markdown("### 📈 Model Performance")
 st.metric("Accuracy", f"{accuracy*100:.2f}%")
 
 # --------------------------------------------------
-# CONFUSION MATRIX & ROC CURVE
+# CONFUSION MATRIX (SMALL)
 # --------------------------------------------------
 cm = confusion_matrix(y_test, y_pred)
 tn, fp, fn, tp = cm.ravel()
 
-colL, colR = st.columns(2)
+st.markdown("### 🧮 Confusion Matrix")
+fig2, ax2 = plt.subplots(figsize=(3,3))
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt="d",
+    cmap="viridis",
+    annot_kws={"size": 8},
+    xticklabels=["Stay", "Leave"],
+    yticklabels=["Stay", "Leave"],
+    ax=ax2
+)
+ax2.tick_params(labelsize=8)
+st.pyplot(fig2)
 
-with colL:
-    st.markdown("#### 🧮 Confusion Matrix")
-    fig2, ax2 = plt.subplots(figsize=(4,4))
-    sns.heatmap(
-        cm,
-        annot=True,
-        fmt="d",
-        cmap="viridis",
-        xticklabels=["Stay", "Leave"],
-        yticklabels=["Stay", "Leave"],
-        ax=ax2
-    )
-    ax2.set_xlabel("Predicted")
-    ax2.set_ylabel("Actual")
-    st.pyplot(fig2)
+# --------------------------------------------------
+# ROC CURVE (SMALL)
+# --------------------------------------------------
+st.markdown("### 📉 ROC Curve")
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+roc_auc = auc(fpr, tpr)
 
-with colR:
-    st.markdown("#### 📉 ROC Curve")
-    fpr, tpr, _ = roc_curve(y_test, y_prob)
-    roc_auc = auc(fpr, tpr)
-
-    fig3, ax3 = plt.subplots(figsize=(4,4))
-    ax3.plot(fpr, tpr, color="#22c55e", label=f"AUC = {roc_auc:.2f}")
-    ax3.plot([0,1], [0,1], linestyle="--", color="gray")
-    ax3.set_xlabel("False Positive Rate")
-    ax3.set_ylabel("True Positive Rate")
-    ax3.legend()
-    st.pyplot(fig3)
+fig3, ax3 = plt.subplots(figsize=(3,3))
+ax3.plot(fpr, tpr, color="#22c55e", label=f"AUC = {roc_auc:.2f}")
+ax3.plot([0,1], [0,1], linestyle="--", color="gray")
+ax3.tick_params(labelsize=8)
+ax3.legend(fontsize=8)
+st.pyplot(fig3)
 
 # --------------------------------------------------
 # FINAL INSIGHTS
 # --------------------------------------------------
 st.markdown("### 📌 Model Insights")
 st.write(f"""
-- **True Positives (Correct churn predictions):** {tp}  
-- **True Negatives (Correct stay predictions):** {tn}  
-- **False Positives (Unnecessary retention actions):** {fp}  
-- **False Negatives (Missed churn customers):** {fn}  
+- **True Positives:** {tp}  
+- **True Negatives:** {tn}  
+- **False Positives:** {fp}  
+- **False Negatives:** {fn}  
 
-✔ Business should prioritize **reducing false negatives** to avoid customer loss.
+✔ Focus on minimizing **false negatives** to prevent customer loss.
 """)
