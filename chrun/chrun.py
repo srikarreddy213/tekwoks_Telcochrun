@@ -13,13 +13,21 @@ st.write("Logistic Regression model to predict customer churn")
 # ---------------------------
 # Load Data
 # ---------------------------
+import os
+import pandas as pd
+import streamlit as st
+
 @st.cache_data
 def load_data():
-    df = pd.read_csv('WA_Fn-UseC_-Telco-Customer-Churn.csv')
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(BASE_DIR, "WA_Fn-UseC_-Telco-Customer-Churn.csv")
+
+    df = pd.read_csv(file_path)
     df = df.drop('customerID', axis=1)
     df['TotalCharges'] = pd.to_numeric(df['TotalCharges'], errors='coerce')
     df = df.dropna()
     return df
+
 
 df = load_data()
 
@@ -90,3 +98,4 @@ st.write(
 - The model helps businesses take **early retention actions**
     """
 )
+
